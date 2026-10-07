@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* ── Signal toast (new-signal popup) ─────────────────────────────── */
+/* Slide in, hold, slide out — total lifetime is 4.5s, matching the
+   SIGNAL_TOAST_LIFE_MS timer in App.tsx that removes the card. */
+@keyframes sqToastIn {
+  0% { transform: translateX(120%); opacity: 0; }
+  12% { transform: translateX(0); opacity: 1; }
+  88% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+.sq-toast { animation: sqToastIn 4.5s ease-in-out forwards; }
+
+/* Countdown bar under every signal card (drains over the same 4.5s). */
+@keyframes sqToastBar {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+.sq-toast-bar { animation: sqToastBar 4.5s linear forwards; }

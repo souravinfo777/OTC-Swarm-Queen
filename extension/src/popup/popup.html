@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OTC Swarm Queen — Multi-Tab Quotex Quant</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 380px;
+      background: #020617;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      padding: 12px;
+      font-size: 11px;
+      user-select: none;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1e293b;
+    }
+    .title {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-family: monospace;
+    }
+    .badge-live { background: #065f46; color: #34d399; border: 1px solid #059669; }
+    .badge-offline { background: #7f1d1d; color: #fca5a5; border: 1px solid #dc2626; }
+
+    /* Web App Connection Box */
+    .conn-box {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+    }
+    .conn-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .conn-title {
+      font-weight: 700;
+      font-size: 10.5px;
+      color: #94a3b8;
+    }
+    .conn-status-badge {
+      font-size: 8.5px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 800;
+      background: #065f46;
+      color: #34d399;
+      border: 1px solid #059669;
+    }
+    .input-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .url-input {
+      flex: 1;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: monospace;
+    }
+    .url-input:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+    .btn-primary {
+      background: #059669;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease;
+    }
+    .btn-primary:hover { background: #047857; }
+    .quick-btn {
+      background: #172554;
+      color: #93c5fd;
+      border: 1px solid #1d4ed8;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    .quick-btn:hover { background: #1e40af; color: #ffffff; }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 9px 11px;
+      margin-bottom: 8px;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .metric-label { color: #64748b; font-size: 10.5px; }
+    .metric-val { font-weight: 700; font-family: monospace; color: #f1f5f9; }
+
+    /* Multi-Tab Radar List */
+    .radar-container {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .radar-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 5px 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .radar-item:hover {
+      border-color: #38bdf8;
+      background: #0f172a;
+    }
+    .radar-item.active {
+      border-color: #38bdf8;
+      background: #0c1e3a;
+    }
+    .radar-signal {
+      font-size: 9.5px;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .sig-call { background: #065f46; color: #34d399; border: 1px solid #059669; }
+    .sig-put { background: #7f1d1d; color: #f87171; border: 1px solid #dc2626; }
+    .sig-hold { background: #27272a; color: #fbbf24; border: 1px solid #3f3f46; }
+
+    .queen-box {
+      text-align: center;
+      padding: 8px 0;
+    }
+    .queen-direction {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin: 3px 0;
+    }
+    .dir-up { color: #10b981; }
+    .dir-down { color: #ef4444; }
+    .dir-hold { color: #94a3b8; }
+
+    .workers-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .worker-chip {
+      background: #1e293b;
+      border-radius: 4px;
+      padding: 3px 2px;
+      text-align: center;
+      font-size: 8.5px;
+      font-weight: 700;
+      font-family: monospace;
+      border-left: 2px solid transparent;
+    }
+    .worker-up { border-left-color: #10b981; color: #34d399; }
+    .worker-down { border-left-color: #ef4444; color: #f87171; }
+    .worker-hold { border-left-color: #64748b; color: #94a3b8; }
+
+    .footer {
+      font-size: 9px;
+      color: #64748b;
+      text-align: center;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">👑 OTC SWARM QUEEN</div>
+    <span id="connStatus" class="badge badge-live">LIVE ACTIVE 🟢</span>
+  </div>
+
+  <!-- Web App Cloud Bridge Controls -->
+  <div class="conn-box">
+    <div class="conn-header">
+      <span class="conn-title">🔗 Web App Cloud Bridge</span>
+      <span id="webAppStatusBadge" class="conn-status-badge">CONNECTED</span>
+    </div>
+    <div class="input-row">
+      <input
+        type="text"
+        id="webAppUrlInput"
+        class="url-input"
+        title="Web App Cloud Bridge URL"
+        placeholder="https://ais-dev-...run.app"
+        value="https://ais-dev-dte3m7eekpxvxe2642j4ah-49480340545.asia-east1.run.app"
+      />
+      <button id="connectBtn" class="btn-primary">Connect</button>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+      <div style="display:flex; gap:3px;">
+        <button id="quickDevBtn" class="quick-btn" title="Use Development App URL">⚡ Dev</button>
+        <button id="quickPreBtn" class="quick-btn" title="Use Preview App URL">⚡ Pre</button>
+        <button id="quickLocalBtn" class="quick-btn" title="Use Localhost">⚡ Local</button>
+      </div>
+      <span id="scannedTabsIndicator" style="font-size:9.5px; color:#38bdf8; font-weight:bold;">
+        🔍 Scanning Open Tabs...
+      </span>
+    </div>
+  </div>
+
+  <!-- Error Alert Box -->
+  <div id="detectionErrorBox" style="display:none; background:#450a0a; border:1px solid #dc2626; border-radius:8px; padding:8px 10px; margin-bottom:8px; font-size:10px; color:#fca5a5;">
+    <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+      <span style="color:#f87171;">⚠️ QUOTEX PAIR DETECTION NOTICE</span>
+      <span style="font-size:8.5px; background:#991b1b; color:#fff; padding:1px 4px; border-radius:3px;">ERROR LOG</span>
+    </div>
+    <div id="detectionErrorText" style="line-height:1.4;">Scanning Quotex tabs...</div>
+  </div>
+
+  <!-- AUTO-TRADE CONTROLS (extension places trades itself when the signal fires) -->
+  <div class="card" style="border:1px solid #059669;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+      <span style="font-size: 10px; color: #34d399; text-transform: uppercase; font-weight: 800;">
+        🤖 AUTO-TRADE (SIGNAL ➔ QUOTEX)
+      </span>
+      <button id="autoTradeToggle" style="font-size:9px; background:#7f1d1d; color:#fca5a5; border:none; border-radius:4px; padding:3px 10px; font-weight:900; cursor:pointer;">
+        OFF
+      </button>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px;">
+      <span style="font-size:9.5px; color:#94a3b8;">Amount ($):</span>
+      <input id="autoTradeAmount" type="number" min="1" max="1000" step="1" value="1"
+             style="width:58px; background:#0f172a; border:1px solid #334155; color:#e2e8f0; font-size:10px; padding:2px 5px; border-radius:4px; text-align:right;">
+      <span style="font-size:9.5px; color:#94a3b8;">Min conf:</span>
+      <select id="autoTradeMinConf"
+              style="background:#0f172a; border:1px solid #334155; color:#e2e8f0; font-size:10px; padding:2px 3px; border-radius:4px; cursor:pointer;">
+        <option value="0.55">55%</option>
+        <option value="0.60">60%</option>
+        <option value="0.65">65%</option>
+        <option value="0.70">70%</option>
+        <option value="0.75">75%</option>
+      </select>
+      <button id="autoTradeApply" style="font-size:9px; background:#334155; color:#e2e8f0; border:none; border-radius:4px; padding:3px 8px; font-weight:800; cursor:pointer;">
+        Apply
+      </button>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:5px; margin-bottom:4px;">
+      <span style="font-size:9.5px; color:#94a3b8;">Repeat max:</span>
+      <select id="autoTradeMaxRepeat"
+              style="background:#0f172a; border:1px solid #334155; color:#e2e8f0; font-size:10px; padding:2px 3px; border-radius:4px; cursor:pointer;"
+              title="How many consecutive same-direction trades before pausing">
+        <option value="0">Unlimited</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+      </select>
+      <span style="font-size:9.5px; color:#94a3b8;">Pause:</span>
+      <select id="autoTradeCooldown"
+              style="background:#0f172a; border:1px solid #334155; color:#e2e8f0; font-size:10px; padding:2px 3px; border-radius:4px; cursor:pointer;"
+              title="Candles to pause after hitting the repeat limit">
+        <option value="1">1 candle</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:center; gap:5px; margin-bottom:4px;">
+      <input id="autoTradeFollowBest" type="checkbox" style="accent-color:#059669; cursor:pointer;">
+      <label for="autoTradeFollowBest" style="font-size:9px; color:#94a3b8; cursor:pointer;">Follow best signal pair (auto-switch chart to the pair that has the signal)</label>
+    </div>
+    <div id="autoTradeStatus" style="font-size:9px; color:#64748b; line-height:1.4;">
+      OFF — the extension will not place any trade by itself. Trades fire only in the entry window (last ~8s) of the candle, one per candle, when confidence ≥ 65%.
+    </div>
+  </div>
+
+  <!-- MULTI-TAB LIVE RADAR (Shows signals for all open Quotex tabs simultaneously) -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+      <span style="font-size: 10px; color: #38bdf8; text-transform: uppercase; font-weight: 800; display:flex; align-items:center; gap:4px;">
+        🌐 SCANNED QUOTEX TABS & SIGNALS
+      </span>
+      <span id="tabsCountBadge" style="font-size:8.5px; background:#0f172a; color:#94a3b8; padding:1px 5px; border-radius:3px; border:1px solid #334155;">
+        Auto-Detecting
+      </span>
+    </div>
+    <div id="multiTabsContainer" class="radar-container">
+      <div style="text-align:center; padding:8px 0; color:#64748b; font-size:10px;">
+        Scanning Quotex tabs in browser...
+      </div>
+    </div>
+  </div>
+
+  <!-- Focused Pair State -->
+  <div class="card">
+    <div class="metric-row">
+      <span class="metric-label">Focused OTC Pair:</span>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <span id="pairModeBadge" title="Pair ownership: SELECTED (pinned by you) or AUTO (follows Quotex)" style="font-size:8px; background:#065f46; color:#34d399; padding:1px 4px; border-radius:3px; font-weight:800; border:1px solid #059669;">AUTO ⚡</span>
+        <span id="assetVal" class="metric-val" style="color: #38bdf8; font-size:12px; font-weight:bold;">Awaiting Quotex Tab...</span>
+      </div>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Best Signal Pair:</span>
+      <span id="bestPairVal" class="metric-val" style="color: #94a3b8;">--</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Quotex Live Price:</span>
+      <span id="priceVal" class="metric-val" style="font-size: 13px; color: #34d399;">0.000</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">SMC Confluence:</span>
+      <span id="confluenceVal" class="metric-val" style="color: #34d399;">75 / 100 (BULLISH)</span>
+    </div>
+  </div>
+
+  <!-- Queen Signal Box with EXPLICIT NEXT CANDLE DIRECTION & EXPIRY COUNTDOWN -->
+  <div class="card queen-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; padding: 0 4px;">
+      <span style="font-size: 9px; color: #bae6fd; text-transform: uppercase; font-weight: 800; letter-spacing:0.5px;">
+        🔮 1-MIN NEXT CANDLE TARGET
+      </span>
+      <span id="candleCountdownTimer" style="font-size: 9px; background:#0f172a; color:#38bdf8; border:1px solid #334155; padding:1px 6px; border-radius:3px; font-weight:bold;">
+        ⏱ EXPIRY: 00:60s
+      </span>
+    </div>
+    <div id="queenDir" class="queen-direction dir-up">NEXT CANDLE: CALL ⬆ (UP)</div>
+    <div class="metric-row" style="margin-top: 4px; padding: 0 10px;">
+      <span>Confidence: <strong id="queenConf" style="color:#34d399;">88%</strong></span>
+      <span>Consensus: <strong id="queenCons" style="color:#f1f5f9;">16/20</strong></span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; margin:5px 10px 0;">
+      <span style="font-size:8.5px; color:#94a3b8; font-weight:800; letter-spacing:.4px;">SIGNAL POWER</span>
+      <div style="flex:1; height:6px; background:#020617; border:1px solid #334155; border-radius:3px; overflow:hidden;">
+        <div id="queenPowerBar" style="width:0%; height:100%; background:#34d399;"></div>
+      </div>
+      <strong id="queenPowerVal" style="font-size:9px; color:#34d399; min-width:30px; text-align:right;">0%</strong>
+    </div>
+    <div id="queenEvidence" style="font-size: 9.5px; color: #94a3b8; margin-top: 4px; padding: 0 6px;">
+      Streaming live Quotex order flow and liquidity sweeps...
+    </div>
+  </div>
+
+  <!-- Optimal Round Number SnR Entry Card -->
+  <div id="roundNumberCard" class="card" style="background:#090d16; border:1px solid #1e3a5f;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+      <span style="font-size:10px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+        🎯 OPTIMAL ROUND NUMBER ENTRY
+      </span>
+      <span id="roundLabel" style="font-size:8.5px; background:#0c4a6e; color:#7dd3fc; padding:1px 5px; border-radius:3px; font-weight:bold;">
+        Round SnR
+      </span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:2px;">
+      <span id="optimalRoundLevel" style="font-size:15px; font-weight:900; color:#34d399; font-family:monospace;">
+        @ 0.0000
+      </span>
+      <span id="roundDistance" style="font-size:9.5px; color:#94a3b8;">
+        Distance: <b id="roundPips" style="color:#e2e8f0;">0.0 pips</b>
+      </span>
+    </div>
+    <div style="font-size:8.5px; color:#64748b; margin-top:4px; padding-top:4px; border-top:1px solid #1e293b; display:flex; justify-content:space-between;">
+      <span>Key Support: <b id="roundSupport" style="color:#cbd5e1; font-family:monospace;">0.000</b></span>
+      <span>Key Resistance: <b id="roundResistance" style="color:#cbd5e1; font-family:monospace;">0.000</b></span>
+    </div>
+  </div>
+
+  <!-- Mistral Vision Scanner Card -->
+  <div class="card" style="background:#0c0a1d; border:1px solid #6d28d9;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+      <span style="font-size:10px; font-weight:800; color:#c4b5fd; display:flex; align-items:center; gap:4px;">
+        👁 MISTRAL VISION SCAN
+      </span>
+      <button id="visionScanBtn" style="font-size:8.5px; background:#7c3aed; color:#fff; border:none; border-radius:4px; padding:2px 7px; font-weight:800; cursor:pointer;">
+        SCAN NOW
+      </button>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span id="visionVerdict" style="font-size:12px; font-weight:900; color:#94a3b8;">NO SCAN YET</span>
+      <span id="visionMeta" style="font-size:8.5px; color:#64748b;">visual chart analysis</span>
+    </div>
+    <div id="visionTrend" style="font-size:9px; color:#94a3b8; margin-top:3px; padding-top:3px; border-top:1px solid #1e293b;">
+      Verdict merges into all 20 flies &bull; flies self-train on every closed candle
+    </div>
+  </div>
+
+  <!-- Floating HUD visibility toggle -->
+  <div style="display:flex; justify-content:flex-end; margin:4px 0;">
+    <button id="hudToggleBtn" style="font-size:8.5px; background:#334155; color:#e2e8f0; border:none; border-radius:4px; padding:3px 8px; font-weight:800; cursor:pointer;">
+      HIDE HUD ON CHART
+    </button>
+  </div>
+
+  <!-- 20 Workers Grid -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size: 9.5px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">
+        20 Worker Flies Status
+      </span>
+      <span id="workersCount" style="color:#34d399; font-size:9px; font-weight:bold;">Live Votes</span>
+    </div>
+    <div id="workersGrid" class="workers-grid"></div>
+  </div>
+
+  <div class="footer">
+    <span id="quotexFooterStatus">Quotex: 🟢 Live Multi-Scan Active</span>
+    <span id="webAppFooterStatus">Web App: 🟢 Linked</span>
+  </div>
+
+  <div style="text-align:right; font-size:7.5px; color:#52525b; padding:2px 8px 6px;" id="extVersionLine"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

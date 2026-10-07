@@ -1,0 +1,6 @@
+{
+  "name": "OTC Swarm Queen",
+  "description": "Quotex OTC Market Analysis & Adaptive Swarm Intelligence Platform with real-time SMC engine, 20-worker genetic evolution, Queen consensus, paper trading, and Chrome extension.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

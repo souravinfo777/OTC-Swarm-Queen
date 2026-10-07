@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ENV=production
+      - DATA_SOURCE=DEMO
+      - EXECUTION_MODE=DISABLED
+      - HOST=0.0.0.0
+      - PORT=8765
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_WS_URL=ws://127.0.0.1:8765/ws
+    depends_on:
+      - backend
+    restart: unless-stopped

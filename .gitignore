@@ -1,0 +1,16 @@
+node_modules/
+build/
+dist/
+!extension/dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Extension signing keys: the PUBLIC key lives in extension/manifest.json (that is what
+# pins the extension ID). The PRIVATE key must never be committed.
+.keys/
+*.pem
+__pycache__/
+*.pyc

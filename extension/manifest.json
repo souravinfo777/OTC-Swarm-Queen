@@ -1,0 +1,88 @@
+{
+  "manifest_version": 3,
+  "name": "OTC Swarm Queen — Quotex Market Intelligence",
+  "version": "1.4.0",
+  "description": "Real-time SMC confluence and 20-Worker Swarm Queen signal bridge for Quotex OTC markets. Sigma-normalised engine with currency-quote-range price prior, price-axis ladder detection, pair-detection hysteresis, and raw-price-first pair arbitration. v1.3: Mistral vision chart scanner feeds every worker fly with per-candle visual scans.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA65I73vs09muzUVIg8LJ/Ah4rZTrjoIOalC3iYb61lAmkyoAUZXjXLeIAHV94HRIoKIVaYcAbvTfzmch0E87Er2FFjvsWWdSJ+VKFH6dzNJQ+v7TUZWSWhMC+Q3x5dgFc+G+ihXdSMUEGu3R5+xF/XB2oM6six/l3bCSlRPDtoyngP0wv3zxwp9dOtJU4Vx48YP5tmMdYgtn86g097x0yG8vV8pSE7Z2JFkxtfgVKcubHfsrsdTXfHLkZFvM7Z3+IplFFXyLKpmaixhmg/dldCP+qRaJM53O0SoYZAdXZRYPTspJUYcDWOUc2bH9Hi+L1ZhkSohwxm6iOeiIObcA67QIDAQAB",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "scripting",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.quotex.com/*",
+        "https://quotex.com/*",
+        "https://*.quotex.io/*",
+        "https://*.qxbroker.com/*",
+        "https://*.qxbroker.info/*",
+        "https://*.qxntrade.com/*",
+        "https://*.market-qx.info/*",
+        "https://market-qx.info/*",
+        "https://*.qx.info/*",
+        "https://*.qx-trade.com/*"
+      ],
+      "js": [
+        "dist/injected_ws_hook.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://aistudio.google.com/*",
+        "https://*.run.app/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*"
+      ],
+      "js": [
+        "dist/bridge.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    },
+    {
+      "matches": [
+        "https://*.quotex.com/*",
+        "https://quotex.com/*",
+        "https://*.quotex.io/*",
+        "https://*.qxbroker.com/*",
+        "https://*.qxbroker.info/*",
+        "https://*.qxntrade.com/*",
+        "https://*.market-qx.info/*",
+        "https://market-qx.info/*",
+        "https://*.qx.info/*",
+        "https://*.qx-trade.com/*"
+      ],
+      "js": [
+        "dist/content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dist/injected_ws_hook.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "OTC Swarm Queen Dashboard"
+  }
+}

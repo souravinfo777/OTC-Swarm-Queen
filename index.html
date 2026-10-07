@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTC Swarm Queen — Quotex OTC Market Analysis & Swarm Intelligence</title>
+    <meta name="description" content="Quotex OTC Market Analysis & Adaptive Swarm Intelligence Platform with real-time SMC engine, 20-worker genetic evolution, Queen consensus, paper trading, and Chrome extension." />
+    <meta property="og:title" content="OTC Swarm Queen — Quotex OTC Market Analysis & Swarm Intelligence" />
+    <meta property="og:description" content="Quotex OTC Market Analysis & Adaptive Swarm Intelligence Platform with real-time SMC engine, 20-worker genetic evolution, Queen consensus, paper trading, and Chrome extension." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          if (typeof window !== 'undefined') {
+            var desc = Object.getOwnPropertyDescriptor(window, 'fetch');
+            var target = window;
+            if (!desc && typeof Window !== 'undefined' && Window.prototype) {
+              desc = Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
+              if (desc) target = Window.prototype;
+            }
+            if (desc && !desc.set && !desc.writable) {
+              var origFetch = window.fetch ? window.fetch.bind(window) : null;
+              Object.defineProperty(target, 'fetch', {
+                configurable: true,
+                enumerable: true,
+                get: function() { return origFetch; },
+                set: function(fn) { if (typeof fn === 'function') origFetch = fn; }
+              });
+            }
+
+            window.addEventListener('error', function(event) {
+              if (event && event.message && event.message.indexOf('fetch of #<Window> which has only a getter') !== -1) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return true;
+              }
+            }, true);
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
